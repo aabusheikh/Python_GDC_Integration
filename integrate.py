@@ -2,6 +2,8 @@ import common as cmn
 import os
 import logging
 
+#TODO: comments/doc
+
 
 def init_integrated_file(type, r, init_from):
     """
@@ -127,7 +129,7 @@ def integrate(type, r):
 
             for sample in samples:
 
-                logging.info("Processing sample [%s out of %s] '%s' ..." % (sn, len(samples), sample))
+                logging.info("Processing sample [%s out of %s (%s > %s)] '%s' ..." % (sn, len(samples), cancer_type, gender, sample))
 
                 found_flag = False
                 for file in cmn.list_dir(os.path.join(samples_path, sample)):
