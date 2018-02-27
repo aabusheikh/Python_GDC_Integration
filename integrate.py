@@ -162,3 +162,4 @@ def run(r=False):
     :return:
     """
     integrate("RNA", r)
+    integrate("miRNA", r)
