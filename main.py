@@ -31,7 +31,7 @@ def main():
 
     if "-r" in sys.argv:
         logging.info("Detected 'raw data' command line argument, program will integrate raw counts (non-normalized).\n")
-        integrate.run(True)
+        integrate.run(True)    
     else:
         logging.warning("No valid command line arguments, program will ignore arguments.\n")
         integrate.run(False)

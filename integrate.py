@@ -1,6 +1,7 @@
 import common as cmn
 import os
 import logging
+import pandas as pd
 
 #TODO: comments/doc
 
@@ -105,6 +106,15 @@ def copy_file(rcol, file_path, copy_path):
     with open(copy_path, 'w') as out_file:
         out_file.write("\n".join(out_lines))
 
+
+def add_header(file_path, num_samples):
+    """
+    """
+    if os.path.isfile(file_path) and file_path.endswith((cmn.INTEGRATED_FNAME % ("", "", "", "")).replace("_", "")):
+        df = pd.read_csv(file_path, sep="\t", header=None, index_col=0, names=["s%s" % sn for sn in range(1, num_samples+1)])
+        df.to_csv(file_path, sep="\t")
+
+
 def integrate(type, r):
     """
     integrate counts files into 1 file per cancer type and gender
@@ -123,13 +133,14 @@ def integrate(type, r):
             integrated_file = ""
             init_flag = False
 
-            samples_path = os.path.join(cmn.DL_DIR, cancer_type, gender)
-            samples = cmn.list_dir(samples_path)
+            samples_path = os.path.join(cmn.DL_DIR, cancer_type, gender)            
+            samples = [ss for ss in cmn.list_dir(samples_path) if os.path.isdir(os.path.join(samples_path, ss))]
+            num_samples = len(samples)
             sn = 1
 
             for sample in samples:
 
-                logging.info("Processing sample [%s out of %s (%s > %s)] '%s' ..." % (sn, len(samples), cancer_type, gender, sample))
+                logging.info("Processing sample [%s out of %s (%s > %s)] '%s' ..." % (sn, num_samples, cancer_type, gender, sample))
 
                 found_flag = False
                 for file in cmn.list_dir(os.path.join(samples_path, sample)):
@@ -153,7 +164,11 @@ def integrate(type, r):
                     logging.info("Sample has no file of type %s.\n" % type)
 
                 sn += 1
+            
+            #logging.info("Adding headers to file %s" % integrated_file)
+            #add_header(integrated_file, num_samples)
 
+            logging.info("Integrated file for %s > %s done.\n" % (cancer_type, gender))
 
 
 def run(r=False):
