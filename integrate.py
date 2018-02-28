@@ -112,7 +112,10 @@ def add_header(file_path, num_samples):
     """
     if os.path.isfile(file_path) and file_path.endswith((cmn.INTEGRATED_FNAME % ("", "", "", "")).replace("_", "")):
         df = pd.read_csv(file_path, sep="\t", header=None, index_col=0, names=["s%s" % sn for sn in range(1, num_samples+1)])
-        df.to_csv(file_path, sep="\t")
+        (f_path, f_name) = os.path.split(file_path)
+        f_name = "%s_HEADERS.%s" % (f_name[0:f_name.rfind(".")], f_name[f_name.rfind("."):])
+        new_path = os.path.join(f_path, f_name)
+        df.to_csv(new_path, sep="\t")
 
 
 def integrate(type, r):
