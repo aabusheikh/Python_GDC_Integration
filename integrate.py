@@ -106,17 +106,20 @@ def integrate(type, r):
             normalized = "normalized"
             if r:
                 normalized = "raw"
-            integrated_file = os.path.join(samples_path, cmn.INTEGRATED_FNAME % (cancer_type.lower(), gender.lower(), type.lower(), normalized))            
+            integrated_file = os.path.join(samples_path, cmn.INTEGRATED_FNAME
+                                           % (cancer_type.lower(), gender.lower(), type.lower(), normalized))
 
             if not os.path.isfile(integrated_file):                
 
                 logging.info("Initializing integrated file ...")
                 init_integrated_file(type, integrated_file)
+                logging.info("Loading integrated file into memory as DataFrame ...")
                 df = pd.read_csv(integrated_file, sep="\t", header=None, index_col=0)
 
                 for sample in samples:
 
-                    logging.info("Processing sample [%s out of %s (%s > %s)] '%s' ..." % (sn, num_samples, cancer_type, gender, sample))
+                    logging.info("Processing sample [%s out of %s (%s > %s)] '%s' ..."
+                                 % (sn, num_samples, cancer_type, gender, sample))
 
                     found_flag = False
                     for file in cmn.list_dir(os.path.join(samples_path, sample)):
@@ -125,12 +128,14 @@ def integrate(type, r):
                             found_flag = True
                             logging.info("Found %s type data file, processing ..." % type)
   
-                            logging.info("Integrating file '%s' ..." % file)                            
+                            logging.info("Integrating file into DataFrame '%s' ..." % file)
 
-                            aa = [in_line.split()[read_col(type, r)] for in_line in open(file_path, 'r').readlines() if in_line.startswith("E") or in_line.startswith("hsa")]    
+                            aa = [in_line.split()[read_col(type, r)]
+                                  for in_line in open(file_path, 'r').readlines()
+                                  if in_line.startswith("E") or in_line.startswith("hsa")]
                             df.insert(_n, "s%s" % _n, aa) 
 
-                            logging.info("File copied.\n")
+                            logging.info("File copied to DataFrame.\n")
 
                             _n += 1
 
@@ -139,14 +144,15 @@ def integrate(type, r):
 
                     sn += 1
 
+                logging.info("Writing integrated DataFrame to file '%s' ..." % integrated_file)
                 df.to_csv(integrated_file, sep="\t", header=None)
             else :
                 logging.info("Integrated file for %s > %s already exists." % (cancer_type, gender))
 
-            #logging.info("Adding integrated file with headers ..." % integrated_file)
-            #add_header(integrated_file, num_samples)
+            logging.info("Adding integrated file with headers ...")
+            add_header(integrated_file, num_samples)
 
-            logging.info("Integrated file for %s > %s done.\n" % (cancer_type, gender))    
+            logging.info("Integrated file for %s > %s done.\n" % (cancer_type, gender))
 
 
 def run(r=False):

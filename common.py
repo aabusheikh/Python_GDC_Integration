@@ -17,7 +17,7 @@ MIRNA_FILE_END = "mirnas.quantification.txt"
 NORMALIZED_END = ".normalized.txt"
 
 # combined file name pattern
-INTEGRATED_FNAME = "_%s_%s_%s_%s_integrated.txt"
+INTEGRATED_FNAME = "%s_%s_%s_%s_integrated.txt"
 
 # absolute directory path to download files to (recommended if project files are stored in
 # a space-sensitive location such as a cloud drive directory (Dropbox, OneDrive, etc...)
