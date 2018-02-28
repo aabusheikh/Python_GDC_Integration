@@ -6,25 +6,14 @@ import pandas as pd
 #TODO: comments/doc
 
 
-def init_integrated_file(type, r, init_from):
+def init_integrated_file(type, init_to, init_from):
     """
 
     :param type:
     :param r:
     :param init_from:
     :return:
-    """
-    samples_path = os.path.split(os.path.split(init_from)[0])[0]
-    cancer_type = os.path.split(os.path.split(samples_path)[0])[1]
-    gender = os.path.split(samples_path)[1]
-
-    normalized = "normalized"
-    if r:
-        normalized = "raw"
-
-    file_name = cmn.INTEGRATED_FNAME % (cancer_type.lower(), gender.lower(), type.lower(), normalized)
-    file_path = os.path.join(samples_path, file_name)
-
+    """        
     out_lines = []
     with open(init_from, 'r') as in_file:
         for in_line in in_file.readlines():
@@ -32,10 +21,8 @@ def init_integrated_file(type, r, init_from):
             if (type.upper() == "RNA" and gene_name.startswith("E")) or (type.upper() == "MIRNA" and gene_name.startswith("hsa")):
                 out_lines.append(gene_name)
 
-    with open(file_path, 'w') as out_file:
+    with open(init_to, 'w') as out_file:
         out_file.write("\n".join(out_lines))
-
-    return file_path
 
 
 def file_name_end(type, r):
@@ -111,11 +98,15 @@ def add_header(file_path, num_samples):
     """
     """
     if os.path.isfile(file_path) and file_path.endswith((cmn.INTEGRATED_FNAME % ("", "", "", "")).replace("_", "")):
+
         df = pd.read_csv(file_path, sep="\t", header=None, index_col=0, names=["s%s" % sn for sn in range(1, num_samples+1)])
+
         (f_path, f_name) = os.path.split(file_path)
         f_name = "%s_HEADERS.%s" % (f_name[0:f_name.rfind(".")], f_name[f_name.rfind("."):])
+
         new_path = os.path.join(f_path, f_name)
-        df.to_csv(new_path, sep="\t")
+        if not os.path.isfile(new_path):
+            df.to_csv(new_path, sep="\t")
 
 
 def integrate(type, r):
@@ -131,47 +122,55 @@ def integrate(type, r):
     for cancer_type in cmn.list_dir(cmn.DL_DIR):
         for gender in cmn.list_dir(os.path.join(cmn.DL_DIR, cancer_type)):
 
-            logging.info("Integrating files in '%s' > '%s' ... \n" % (cancer_type, gender))
-
-            integrated_file = ""
-            init_flag = False
+            logging.info("Integrating files in '%s' > '%s' ... \n" % (cancer_type, gender))            
 
             samples_path = os.path.join(cmn.DL_DIR, cancer_type, gender)            
             samples = [ss for ss in cmn.list_dir(samples_path) if os.path.isdir(os.path.join(samples_path, ss))]
             num_samples = len(samples)
             sn = 1
 
-            for sample in samples:
+            normalized = "normalized"
+            if r:
+                normalized = "raw"
+            integrated_file = os.path.join(samples_path, cmn.INTEGRATED_FNAME % (cancer_type.lower(), gender.lower(), type.lower(), normalized))
 
-                logging.info("Processing sample [%s out of %s (%s > %s)] '%s' ..." % (sn, num_samples, cancer_type, gender, sample))
+            if not os.path.isfile(integrated_file):
+                init_flag = False
 
-                found_flag = False
-                for file in cmn.list_dir(os.path.join(samples_path, sample)):
-                    file_path = os.path.join(samples_path, sample, file)
-                    if file.endswith(file_name_end(type, r)):
-                        found_flag = True
-                        logging.info("Found %s type data file, processing ..." % type)
+                for sample in samples:
 
-                        if not init_flag:
-                            logging.info("Initializing integrated file ...")
-                            integrated_file = init_integrated_file(type, r, file_path)
-                            init_flag = True
+                    logging.info("Processing sample [%s out of %s (%s > %s)] '%s' ..." % (sn, num_samples, cancer_type, gender, sample))
 
-                        logging.info("Integrating file '%s' ..." % file)
+                    found_flag = False
+                    for file in cmn.list_dir(os.path.join(samples_path, sample)):
+                        file_path = os.path.join(samples_path, sample, file)
+                        if file.endswith(file_name_end(type, r)):
+                            found_flag = True
+                            logging.info("Found %s type data file, processing ..." % type)
 
-                        copy_file(read_col(type, r), file_path, integrated_file)
+                            if not init_flag:
+                                logging.info("Initializing integrated file ...")
+                                init_integrated_file(type, integrated_file, file_path)
+                                init_flag = True
 
-                        logging.info("File copied.\n")
+                            logging.info("Integrating file '%s' ..." % file)
 
-                if not found_flag:
-                    logging.info("Sample has no file of type %s.\n" % type)
+                            copy_file(read_col(type, r), file_path, integrated_file)
 
-                sn += 1
-            
-            #logging.info("Adding headers to file %s" % integrated_file)
-            #add_header(integrated_file, num_samples)
+                            logging.info("File copied.\n")
+
+                    if not found_flag:
+                        logging.info("Sample has no file of type %s.\n" % type)
+
+                    sn += 1
+            else :
+                logging.info("Integrated file for %s > %s already exists." % (cancer_type, gender))
+
+            logging.info("Adding integrated file with headers ..." % integrated_file)
+            add_header(integrated_file, num_samples)
 
             logging.info("Integrated file for %s > %s done.\n" % (cancer_type, gender))
+            
 
 
 def run(r=False):
