@@ -149,8 +149,11 @@ def integrate(type, r):
             else :
                 logging.info("Integrated file for %s > %s already exists." % (cancer_type, gender))
 
+            # TODO: decide if headers are needed
+            '''
             logging.info("Adding integrated file with headers ...")
             add_header(integrated_file, num_samples)
+            '''
 
             logging.info("Integrated file for %s > %s done.\n" % (cancer_type, gender))
 
