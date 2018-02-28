@@ -30,6 +30,10 @@ REL_DL_DIR = 'GDC_Downloads'
 # chosen downloads directory
 DL_DIR = ABS_DL_DIR
 
+# gene/mirna list file
+RNA_LIST_PATH = os.path.join(DL_DIR, "rna_list.txt")
+MIRNA_LIST_PATH = os.path.join(DL_DIR, "mirna_list.txt")
+
 # log file directory
 LOG_DIR = 'logs'
 
