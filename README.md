@@ -7,3 +7,12 @@ Python script to integrate files downloaded from the GDC server and normalized u
 Download: https://github.com/bbpgrs/Python_GDC_DL
 
 Normalization: https://github.com/obawany/Normalizing-data-using-python
+
+___
+
+### Required to run:
+
+#### Python 3
+
+#### Pandas library
+    pip install pandas
