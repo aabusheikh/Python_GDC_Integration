@@ -67,22 +67,7 @@ def read_col(type, r):
     return c
 
 
-def add_header(file_path, num_samples):
-    """
-    """
-    if os.path.isfile(file_path) and file_path.endswith((cmn.INTEGRATED_FNAME % ("", "", "", "")).replace("_", "")):
-
-        df = pd.read_csv(file_path, sep="\t", header=None, index_col=0, names=["s%s" % sn for sn in range(1, num_samples+1)])
-
-        (f_path, f_name) = os.path.split(file_path)
-        f_name = "%s_HEADERS.%s" % (f_name[0:f_name.rfind(".")], f_name[f_name.rfind("."):])
-
-        new_path = os.path.join(f_path, f_name)
-        if not os.path.isfile(new_path):
-            df.to_csv(new_path, sep="\t")
-
-
-def integrate(type, r):
+def integrate(type, r, h):
     """
     integrate counts files into 1 file per cancer type and gender
 
@@ -145,25 +130,22 @@ def integrate(type, r):
                     sn += 1
 
                 logging.info("Writing integrated DataFrame to file '%s' ..." % integrated_file)
-                df.to_csv(integrated_file, sep="\t", header=None)
+                if not h:
+                    df.to_csv(integrated_file, sep="\t", header=None)
+                else:
+                    df.to_csv(integrated_file, sep="\t")
             else :
                 logging.info("Integrated file for %s > %s already exists." % (cancer_type, gender))
-
-            # TODO: decide if headers are needed
-            '''
-            logging.info("Adding integrated file with headers ...")
-            add_header(integrated_file, num_samples)
-            '''
 
             logging.info("Integrated file for %s > %s done.\n" % (cancer_type, gender))
 
 
-def run(r=False):
+def run(r=False, h=False):
     """
     run module
 
     :param r: Boolean integrate raw counts if true, or normalized if false
     :return:
     """
-    integrate("RNA", r)
-    integrate("miRNA", r)
+    integrate("RNA", r, h)
+    integrate("miRNA", r, h)
