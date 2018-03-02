@@ -29,12 +29,19 @@ def main():
     start_time = time.time()
     logging.info("Starting program ...")
 
+    r, h = False, False
+
     if "-r" in sys.argv:
         logging.info("Detected 'raw data' command line argument, program will integrate raw counts (non-normalized).\n")
-        integrate.run(True)    
+        r = True  
+    if "-h" in sys.argv:
+        logging.info("Detected 'headers' command line argument, program will add headers to integrated files.\n")
+        h = True   
     else:
         logging.warning("No valid command line arguments, program will ignore arguments.\n")
         integrate.run(False)
+
+    integrate.run(r, h)
         
 
     logging.info("Finished running program.")
