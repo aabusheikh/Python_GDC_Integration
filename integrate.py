@@ -140,7 +140,7 @@ def integrate(type, r, h):
             logging.info("Integrated file for %s > %s done.\n" % (cancer_type, gender))
 
 
-def run(r=False, h=False):
+def run(r=False, h=True):
     """
     run module
 
