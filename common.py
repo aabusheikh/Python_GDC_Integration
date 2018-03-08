@@ -1,3 +1,5 @@
+# Copyright (C) 2018  Ahmad A. A. (https://github.com/bbpgrs/)
+
 import os
 import errno
 import logging
